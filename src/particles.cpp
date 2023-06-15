@@ -1,7 +1,10 @@
-#include <GL/glut.h>
+#include "mechanics.cpp"
 #include <GLFW/glfw3.h>
+#include <GL/glut.h>
 #include <math.h>
 #include <vector>
+#include <iostream>
+#include <random>
 
 
 class Particle {
@@ -9,33 +12,23 @@ class Particle {
         float x;
         float y;
         float radius;
-        float velocity;
+        float verticalVel;
+        float horizontalVel;
 
     public:
-        Particle(float xPos, float yPos, float r) {
+        Particle(float xPos, float yPos, float r, float vVel, float hVel) {
             x = xPos;
             y = yPos;
             radius = r;
-            velocity = 0.0f;
+            verticalVel = vVel;
+            horizontalVel = hVel;
         }
 
 
     void update(float deltaTime) {
-        const float gravity = -0.010f;  // Set the gravitational force
-        const float restitution = 0.8f;       // Set the restitution coefficient
-        
-        // Update the velocity and position based on acceleration
-        velocity += gravity * deltaTime;
-        y += velocity * deltaTime;
-
-        // Reverse the velocity when the circle hits the ground
-        if (y - radius < -1.0f) {
-            // Reverse the velocity
-            velocity = -1.0 * velocity * restitution;
-
-            // Make sure the particle is above the ground
-            y = -1.0f + radius;
-        }
+        checkCollision(x, y, horizontalVel, verticalVel, radius, deltaTime);
+        applyHorizontalVelocity(horizontalVel, x, radius, deltaTime);
+        applyGravity(verticalVel, y, radius, deltaTime);
     }
 
     void draw() {
@@ -61,14 +54,29 @@ class Particle {
     }
 };
 
-
+// Create an array of Particles
 std::vector<Particle> createParticleArray(int numParticles) {
     std::vector<Particle> particles;
-    float xPos = -1.5f;
+    float xPos = -1.5;
+    float yPos = 0.60f;
+    const float radius = 0.10f;
 
-    for (int i = 0; i <= numParticles; ++i) {
-        particles.push_back(Particle(xPos, 0.80f, 0.025f));
-        xPos += 0.10;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // Create a uniform distribution
+    std::uniform_int_distribution<int> dist(-1, 1);  // Generates random numbers between 1 and 100 (inclusive)
+
+    for (int i = 0; i < numParticles; ++i) {
+        // Generate a random horizontal velocity
+        int horizontalVel = dist(gen);
+        // Generate a random vertical velocity
+        int verticalVel = dist(gen);
+
+        particles.push_back(Particle(xPos, yPos, radius, verticalVel, horizontalVel));
+        
+        xPos += 2*radius + 0.05;
+        yPos += 0.05*radius;
     }
 
     return particles;

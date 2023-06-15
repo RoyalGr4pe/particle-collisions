@@ -16,8 +16,7 @@ void windowCloseCallback(GLFWwindow* window) {
 
 void display(GLFWwindow* window) {
     static float prevTime = glfwGetTime();  // Initialize prevTime with the current time
-    static int particleIndex = 0;  // Track the current particle index
-    static std::vector<Particle> particles = createParticleArray(5); 
+    static std::vector<Particle> particles = createParticleArray(10); 
 
     while (isRunning) {  // Check the flag to continue running the program
         float currentTime = glfwGetTime();  // Get the current frame time
@@ -33,16 +32,10 @@ void display(GLFWwindow* window) {
             particle.draw();
         }
 
-        particleIndex++;  // Move to the next particle
-        if (particleIndex >= particles.size()) {
-            particleIndex = 0;  // Reset the index if all particles have been displayed
-        }
-
         prevTime = currentTime;  // Update the previous time
 
         glFlush();
         glfwSwapBuffers(window);  // Swap the front and back buffers
-
 
         glfwPollEvents();  // Poll for events
     }
