@@ -1,66 +1,57 @@
 #include <GL/glut.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
+#include "src/particles.cpp"
+#include <iostream>
+using namespace std;
 
 
-void drawCircle(float cx, float cy, float r, int num_segments)
-{
-    float theta = 3.1415926 * 2 / float(num_segments);
-    float tangetial_factor = tanf(theta);//calculate the tangential factor 
 
-    float radial_factor = cosf(theta);//calculate the radial factor 
+void display() {
+    while (true) {
 
-    float x = r;//we start at angle = 0 
+        glClear(GL_COLOR_BUFFER_BIT);
 
-    float y = 0;
-    glLineWidth(2);
-    glBegin(GL_LINE_LOOP);
-    for (int ii = 0; ii < num_segments; ii++)
-    {
-        glVertex2f(x + cx, y + cy);//output vertex 
+        glColor3f(1.0f, 0.0f, 0.0f);  // Set color to red
 
-        //calculate the tangential vector 
-        //remember, the radial vector is (x, y) 
-        //to get the tangential vector we flip those coordinates and negate one of them 
+        Particle particle1(-0.5f, 0.0f, 0.025f);  // Create a circle object
+        particle1.update();
+        particle1.draw();  // Draw the circle
 
-        float tx = -y;
-        float ty = x;
+        Particle particle2(0.5f, 0.0f, 0.025f);  // Create a circle object
+        particle2.update();
+        particle2.draw();  // Draw the circle
 
-        //add the tangential vector 
-
-        x += tx * tangetial_factor;
-        y += ty * tangetial_factor;
-
-        //correct using the radial factor 
-
-        x *= radial_factor;
-        y *= radial_factor;
+        glFlush();
     }
-    glEnd();
 }
 
-void Draw(void)
-{   
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(0.0, 0.5, 0.5);
-    drawCircle(250, 250, 100, 360);
+
+void reshape(int width, int height) {
+    glViewport(0, 0, width, height);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    // Calculate the aspect ratio
+    float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+
+    // Adjust the projection matrix to maintain the aspect ratio
+    if (width <= height) {
+        glOrtho(-1.0, 1.0, -1.0 / aspectRatio, 1.0 / aspectRatio, -1.0, 1.0);
+    } else {
+        glOrtho(-1.0 * aspectRatio, 1.0 * aspectRatio, -1.0, 1.0, -1.0, 1.0);
+    }
 }
 
-int main(int argc, char** argv)
-{   
-    short int screenWidth = 1000;
-    short int screenHeight = 700;
-    // Positioning window in the middle of screen
-    short int screenXPosition = 960 - .5*screenWidth;
-    short int screenYPosition = 540 - .5*screenHeight;
 
-
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE);
-    glutInitWindowSize(screenWidth, screenHeight);
-    glutInitWindowPosition(screenXPosition, screenYPosition);
-    glutCreateWindow("Engine");
-    glutDisplayFunc(Draw);
-    glutMainLoop();
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);  // Initialize GLUT
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);  // Set the display mode
+    glutInitWindowSize(1920, 1080);  // Set the window size
+    glutCreateWindow("Circle Drawing");  // Create the window
+    glutDisplayFunc(display);  // Set the display callback function
+    glutReshapeFunc(reshape);  // Set the reshape callback function
+    glutMainLoop();  // Enter the GLUT event loop
     return 0;
 }
