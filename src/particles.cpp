@@ -1,33 +1,40 @@
 #include <GL/glut.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
+#include <vector>
+
 
 class Particle {
-private:
-    float x;
-    float y;
-    float radius;
-    float velocity;
-    float acceleration;
+    private:
+        float x;
+        float y;
+        float radius;
+        float velocity;
 
-public:
-    Particle(float xPos, float yPos, float r) {
-        x = xPos;
-        y = yPos;
-        radius = r;
-        velocity = 0.0f;
-        acceleration = -0.01f;  // Set the acceleration due to gravity
-    }
+    public:
+        Particle(float xPos, float yPos, float r) {
+            x = xPos;
+            y = yPos;
+            radius = r;
+            velocity = 0.0f;
+        }
 
 
-    void update() {
+    void update(float deltaTime) {
+        const float gravity = -0.010f;  // Set the gravitational force
+        const float restitution = 0.8f;       // Set the restitution coefficient
+        
         // Update the velocity and position based on acceleration
-        velocity += acceleration;
-        y += velocity;
+        velocity += gravity * deltaTime;
+        y += velocity * deltaTime;
 
         // Reverse the velocity when the circle hits the ground
         if (y - radius < -1.0f) {
-            velocity *= -1.0f;
+            // Reverse the velocity
+            velocity = -1.0 * velocity * restitution;
+
+            // Make sure the particle is above the ground
+            y = -1.0f + radius;
         }
     }
 
@@ -43,6 +50,7 @@ public:
         glBegin(GL_TRIANGLE_FAN);
         glVertex2f(0.0f, 0.0f);  // Center vertex
 
+        // Drawing of the particle
         for (int i = 0; i <= numSegments; ++i) {
             float angle = i * theta;
             float xPos = radius * cos(angle);
@@ -52,3 +60,16 @@ public:
         glEnd();
     }
 };
+
+
+std::vector<Particle> createParticleArray(int numParticles) {
+    std::vector<Particle> particles;
+    float xPos = -1.5f;
+
+    for (int i = 0; i <= numParticles; ++i) {
+        particles.push_back(Particle(xPos, 0.80f, 0.025f));
+        xPos += 0.10;
+    }
+
+    return particles;
+}

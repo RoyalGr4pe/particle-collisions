@@ -7,22 +7,44 @@ using namespace std;
 
 
 
-void display() {
-    while (true) {
+bool isRunning = true;  // Flag to control the program loop
 
+void windowCloseCallback(GLFWwindow* window) {
+    isRunning = false;  // Set the flag to false when the window is closed
+}
+
+
+void display(GLFWwindow* window) {
+    static float prevTime = glfwGetTime();  // Initialize prevTime with the current time
+    static int particleIndex = 0;  // Track the current particle index
+    static std::vector<Particle> particles = createParticleArray(5); 
+
+    while (isRunning) {  // Check the flag to continue running the program
+        float currentTime = glfwGetTime();  // Get the current frame time
+        float deltaTime = currentTime - prevTime;  // Calculate the time difference
+        
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glColor3f(1.0f, 0.0f, 0.0f);  // Set color to red
+        glColor3f(0.0f, 0.0f, 1.0f);  // Set color to red
 
-        Particle particle1(-0.5f, 0.0f, 0.025f);  // Create a circle object
-        particle1.update();
-        particle1.draw();  // Draw the circle
+        for (int idx = 0; idx <= particles.size(); ++idx) {
+            Particle& particle = particles[idx];
+            particle.update(deltaTime);
+            particle.draw();
+        }
 
-        Particle particle2(0.5f, 0.0f, 0.025f);  // Create a circle object
-        particle2.update();
-        particle2.draw();  // Draw the circle
+        particleIndex++;  // Move to the next particle
+        if (particleIndex >= particles.size()) {
+            particleIndex = 0;  // Reset the index if all particles have been displayed
+        }
+
+        prevTime = currentTime;  // Update the previous time
 
         glFlush();
+        glfwSwapBuffers(window);  // Swap the front and back buffers
+
+
+        glfwPollEvents();  // Poll for events
     }
 }
 
@@ -46,12 +68,43 @@ void reshape(int width, int height) {
 
 
 int main(int argc, char** argv) {
-    glutInit(&argc, argv);  // Initialize GLUT
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);  // Set the display mode
-    glutInitWindowSize(1920, 1080);  // Set the window size
-    glutCreateWindow("Circle Drawing");  // Create the window
-    glutDisplayFunc(display);  // Set the display callback function
-    glutReshapeFunc(reshape);  // Set the reshape callback function
-    glutMainLoop();  // Enter the GLUT event loop
+    // Initialize GLFW
+    if (!glfwInit()) {
+        cout << "Failed to initialize GLFW" << endl;
+        return -1;
+    }
+
+    // Create a GLFW window
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "Particle Simulator", NULL, NULL);
+    if (!window) {
+        cout << "Failed to create GLFW window" << endl;
+        glfwTerminate();
+        return -1;
+    }
+
+    // Set the window context
+    glfwMakeContextCurrent(window);
+
+    // Register the window close callback function
+    glfwSetWindowCloseCallback(window, windowCloseCallback);
+
+    // Set the viewport and projection matrix
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    reshape(width, height);
+
+    while (!glfwWindowShouldClose(window)) {
+        display(window);
+
+        // Swap front and back buffers
+        glfwSwapBuffers(window);
+
+        // Poll for events
+        glfwPollEvents();
+    }
+
+    // Terminate GLFW
+    glfwTerminate();
+
     return 0;
 }
