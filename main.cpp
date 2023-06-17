@@ -1,13 +1,17 @@
 #include <GL/glut.h>
 #include <GLFW/glfw3.h>
+#include "src/Particle.h"
+#include "src/mechanics.cpp"
+#include "src/create_particles.cpp"
 #include <math.h>
-#include "src/particles.cpp"
+#include <vector>
 #include <iostream>
 using namespace std;
 
 
 
 bool isRunning = true;  // Flag to control the program loop
+
 
 void windowCloseCallback(GLFWwindow* window) {
     isRunning = false;  // Set the flag to false when the window is closed
@@ -16,22 +20,25 @@ void windowCloseCallback(GLFWwindow* window) {
 
 void display(GLFWwindow* window) {
     static float prevTime = glfwGetTime();  // Initialize prevTime with the current time
-    static std::vector<Particle> particles = createParticleArray(10); 
+    static std::vector<Particle>& particles = createParticleArray(40); 
+
+    static float speed = 0.5f;
 
     while (isRunning) {  // Check the flag to continue running the program
         float currentTime = glfwGetTime();  // Get the current frame time
-        float deltaTime = currentTime - prevTime;  // Calculate the time difference
+        float deltaTime = speed * (currentTime - prevTime);  // Calculate the time difference
         
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glColor3f(0.0f, 0.0f, 1.0f);  // Set color to red
+
+        checkCollisions(particles, deltaTime);
 
         for (int idx = 0; idx <= particles.size(); ++idx) {
             Particle& particle = particles[idx];
             particle.update(deltaTime);
             particle.draw();
         }
-
+        
         prevTime = currentTime;  // Update the previous time
 
         glFlush();
