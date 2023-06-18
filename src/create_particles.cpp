@@ -35,15 +35,9 @@ std::vector<Particle>& createParticleArray(int numParticles) {
         particle.mass = mass;
         particle.radius = radius;
         
-        if (i >= 0) {
-            particle.red = 1.0f;
-            particle.green = 1.0f;
-            particle.blue = 1.0f;
-        } else {
-            particle.red = 0.0f;
-            particle.green = 0.0f;
-            particle.blue = 0.0f;
-        }
+        particle.red = 1.0f;
+        particle.green = 1.0f;
+        particle.blue = 1.0f;
 
         particlesArray.push_back(Particle(particle));
         

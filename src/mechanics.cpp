@@ -21,11 +21,9 @@ void checkCollisions(std::vector<Particle>& particles, float deltaTime) {
 
             // Check if the particles have collided
             if (distance <= particleA.radius + particleB.radius) {
-                // Calculate the normal and tangential vectors
+                // Calculate the vectors
                 float nx = dx / distance;
                 float ny = dy / distance;
-                float tx = -ny;
-                float ty = nx;
 
                 // Calculate the relative velocity in the normal direction
                 float dvx = particleB.horizontalVel - particleA.horizontalVel;

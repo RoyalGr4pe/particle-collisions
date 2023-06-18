@@ -81,7 +81,7 @@ class Particle {
 
     void applyGravity(float deltaTime) {
         const float gravity = -0.5f;  // Set the gravitational force
-        const float restitution = 1.0f;       // Set the restitution coefficient
+        const float restitution = 0.9f;       // Set the restitution coefficient
         const float yTop = 1.0f;
         const float yBottom = -1.0f;
 
